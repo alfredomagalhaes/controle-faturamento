@@ -29,8 +29,6 @@ func ConnectDB() {
 	connectionString :=
 		fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true", user, password, server, port, dbname)
 
-	//connectionString := os.Getenv("database_url")
-
 	MI = MySqlInstance{}
 
 	MI.DB, err = gorm.Open(mysql.Open(connectionString))
@@ -39,13 +37,5 @@ func ConnectDB() {
 		fmt.Println("Erro ao conectar no banco de dados", err)
 		return
 	}
-	fmt.Println("Database connected!")
 
 }
-
-/*
-func InitTables() {
-
-	MI.DB.AutoMigrate(&models.User{})
-}
-*/

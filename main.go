@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/alfredomagalhaes/controle-faturamento/config"
+	"github.com/alfredomagalhaes/controle-faturamento/models"
 	"github.com/alfredomagalhaes/controle-faturamento/routes"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/logger"
@@ -26,7 +27,7 @@ func main() {
 	config.ConnectDB()
 
 	//Cria as tabelas a serem usadas no banco de dados
-	//config.InitTables()
+	models.InicializarTabelas()
 
 	// setup routes
 	setupRoutes(app)
@@ -71,5 +72,5 @@ func setupRoutes(app *fiber.App) {
 	}))
 
 	//Every route declared below this point, will be using JWT authentication
-
+	routes.SNRoute(api.Group("/tabelaSN"))
 }
