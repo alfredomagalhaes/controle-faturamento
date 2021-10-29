@@ -9,19 +9,19 @@ import (
 
 type INSS_Tabela struct {
 	Base
-	DataInicial time.Time
-	DataFinal   time.Time
-	ValorLimite float32
-	Faixas      []INSS_Faixa `gorm:"foreignKey:IDTabelaINSS"`
+	DataInicial time.Time    `json:"data_inicial"`
+	DataFinal   time.Time    `json:"data_final"`
+	ValorLimite float32      `json:"valor_limite"`
+	Faixas      []INSS_Faixa `gorm:"foreignKey:IDTabelaINSS" json:"faixa_valores"`
 }
 
 type INSS_Faixa struct {
 	Base
-	Sequencia    int
-	ValorInicial float32
-	ValorFinal   float32
-	Aliquota     float32
-	IDTabelaINSS uuid.UUID
+	Sequencia    int       `json:"sequencia"`
+	ValorInicial float32   `json:"valor_inicial"`
+	ValorFinal   float32   `json:"valor_final"`
+	Aliquota     float32   `json:"aliquota"`
+	IDTabelaINSS uuid.UUID `json:"ID_tabela_INSS"`
 }
 
 func (in *INSS_Tabela) CriarTabelaINSS() error {
