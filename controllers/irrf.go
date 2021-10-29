@@ -7,9 +7,9 @@ import (
 	"gorm.io/gorm"
 )
 
-func CriarTabelaSN(c *fiber.Ctx) error {
+func CriarTabelaIR(c *fiber.Ctx) error {
 
-	tb := &models.SN_Tabela{}
+	tb := &models.IRRF_Tabela{}
 
 	err := c.BodyParser(&tb)
 	if err != nil {
@@ -19,11 +19,11 @@ func CriarTabelaSN(c *fiber.Ctx) error {
 		})
 	}
 
-	err = tb.CriarTabelaSN()
+	err = tb.CriarTabelaIRRF()
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"success": false,
-			"message": "malformed request",
+			"message": err.Error(),
 		})
 	}
 
@@ -34,7 +34,7 @@ func CriarTabelaSN(c *fiber.Ctx) error {
 	})
 }
 
-func AtualizarTabelaSN(c *fiber.Ctx) error {
+func AtualizarTabelaIR(c *fiber.Ctx) error {
 
 	id := c.Params("id")
 	if id == "" {
@@ -44,7 +44,7 @@ func AtualizarTabelaSN(c *fiber.Ctx) error {
 		})
 	}
 
-	tb := &models.SN_Tabela{}
+	tb := &models.IRRF_Tabela{}
 
 	err := c.BodyParser(&tb)
 	if err != nil {
@@ -55,7 +55,7 @@ func AtualizarTabelaSN(c *fiber.Ctx) error {
 	}
 
 	tb.ID, _ = uuid.FromString(id)
-	err = tb.AtualizarTabelaSN()
+	err = tb.AtualizarTabelaIR()
 
 	if err != nil {
 		return c.Status(fiber.StatusPreconditionFailed).JSON(fiber.Map{
@@ -71,7 +71,7 @@ func AtualizarTabelaSN(c *fiber.Ctx) error {
 	})
 }
 
-func ObterTabelaSN(c *fiber.Ctx) error {
+func ObterTabelaIRRF(c *fiber.Ctx) error {
 
 	//tb := &models.SN_Tabela{}
 
@@ -83,7 +83,7 @@ func ObterTabelaSN(c *fiber.Ctx) error {
 		})
 	}
 	idPesq, _ := uuid.FromString(id)
-	tb, err := models.ObterTabelaSN(idPesq)
+	tb, err := models.ObterTabelaIRRF(idPesq)
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
@@ -106,7 +106,7 @@ func ObterTabelaSN(c *fiber.Ctx) error {
 	})
 }
 
-func ObterFaixasPorTabelaSN(c *fiber.Ctx) error {
+func ObterFaixasPorTabelaIR(c *fiber.Ctx) error {
 
 	id := c.Params("id")
 	if id == "" {
@@ -116,7 +116,7 @@ func ObterFaixasPorTabelaSN(c *fiber.Ctx) error {
 		})
 	}
 	idPesq, _ := uuid.FromString(id)
-	tb, err := models.ObterFaixasPorTabelaSN(idPesq)
+	tb, err := models.ObterFaixasPorTabelaIR(idPesq)
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
@@ -139,7 +139,7 @@ func ObterFaixasPorTabelaSN(c *fiber.Ctx) error {
 	})
 }
 
-func ApagarFaixaSN(c *fiber.Ctx) error {
+func ApagarFaixaIR(c *fiber.Ctx) error {
 
 	id := c.Params("id")
 	if id == "" {
@@ -149,7 +149,7 @@ func ApagarFaixaSN(c *fiber.Ctx) error {
 		})
 	}
 	idPesq, _ := uuid.FromString(id)
-	err := models.ApagarFaixasSN(idPesq)
+	err := models.ApagarFaixasIR(idPesq)
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{

@@ -23,9 +23,9 @@ type Token struct {
 //User a struct to rep user User
 type User struct {
 	Base
-	Email    string `json:"email";gorm:"unique"`
+	Email    string `json:"email" gorm:"unique"`
 	Password string `json:"password,omitempty"`
-	Token    string `json:"token";gorm:"-"`
+	Token    string `json:"token" gorm:"-"`
 }
 
 //Login method to valid user, password and token

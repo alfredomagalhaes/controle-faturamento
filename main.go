@@ -73,4 +73,7 @@ func setupRoutes(app *fiber.App) {
 
 	//Every route declared below this point, will be using JWT authentication
 	routes.SNRoute(api.Group("/tabelaSN"))
+	routes.IRRoute(api.Group("/tabelaIR"))
+	routes.INSSRoute(api.Group("/tabelaINSS"))
+
 }

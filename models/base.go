@@ -9,10 +9,10 @@ import (
 
 // Base contains common columns for all tables.
 type Base struct {
-	ID        uuid.UUID  `gorm:"type:varchar(36);primary_key;";json:"id"`
-	CreatedAt time.Time  `gorm:"autoCreateTime"`
-	UpdatedAt time.Time  `gorm:"autoUpdateTime"`
-	DeletedAt *time.Time `gorm:"index"`
+	ID        uuid.UUID      `gorm:"type:varchar(36);primary_key;" json:"id"`
+	CreatedAt time.Time      `gorm:"autoCreateTime"`
+	UpdatedAt time.Time      `gorm:"autoUpdateTime"`
+	DeletedAt gorm.DeletedAt `gorm:"index"`
 }
 
 // BeforeCreate will set a UUID rather than numeric ID.
