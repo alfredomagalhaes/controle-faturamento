@@ -36,7 +36,7 @@ import {
 
 import { NavLink, Link } from "react-router-dom";
 import styled from "styled-components";
-import avtar from "../../assets/images/team-2.jpg";
+
 
 const ButtonContainer = styled.div`
   .ant-btn-primary {
@@ -146,12 +146,6 @@ const clockicon = [
 ];
 
 const data = [
-  {
-    title: "New message from Sophie",
-    description: <>{clockicon} 2 days ago</>,
-
-    avatar: avtar,
-  },
   {
     title: "New album by Travis Scott",
     description: <>{clockicon} 2 days ago</>,
