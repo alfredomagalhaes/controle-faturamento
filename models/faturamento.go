@@ -11,7 +11,7 @@ import (
 type Faturamento struct {
 	Base
 	Referencia    string  `json:"referencia" gorm:"type:varchar(6);index:idx_referencia"`
-	ValorFaturado float32 `json:"valor_faturado"`
+	ValorFaturado float64 `json:"valor_faturado"`
 }
 
 var ErrReferenciaJaCadastrada = errors.New("referencia já existe no banco de dados")
@@ -84,9 +84,9 @@ func ApagarFaturamento(id uuid.UUID) error {
 
 //Função para somar os faturamentos anteriores
 //com base nos parâmetros de referencia (r) e delta (d) de meses anteriores
-func SomarFaturamentosAnteriores(r string, d int) (float32, float32, error) {
-	var somaFat float32
-	var quantFat float32
+func SomarFaturamentosAnteriores(r string, d int) (float64, float64, error) {
+	var somaFat float64
+	var quantFat float64
 	var anoMesInicial string
 	var anoMesFinal string
 
@@ -110,4 +110,18 @@ func SomarFaturamentosAnteriores(r string, d int) (float32, float32, error) {
 	}
 
 	return somaFat, quantFat, nil
+}
+
+func ObterFaturamentoMes(r string) (Faturamento, error) {
+
+	fatRet := Faturamento{}
+
+	retGr := config.MI.DB.Where("referencia = ?", r).First(&fatRet)
+
+	if retGr.Error != nil {
+		return Faturamento{}, retGr.Error
+	}
+
+	return fatRet, nil
+
 }

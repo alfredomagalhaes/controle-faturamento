@@ -15,13 +15,13 @@ type Fechamento struct {
 	Base
 	Referencia    string  `json:"referencia" gorm:"type:varchar(6);index:idx_referencia"`
 	Tipo          string  `json:"tipo" gorm:"type:varchar(1)"`
-	ValorFaturado float32 `json:"valor_faturado"`
-	AliquotaDAS   float32 `json:"aliquota_das"`
-	ValorDAS      float32 `json:"valor_das"`
-	AliquotaINSS  float32 `json:"aliquota_inss"`
-	ValorINSS     float32 `json:"valor_inss"`
-	AliquotaIRRF  float32 `json:"aliquota_irrf"`
-	ValorIRRF     float32 `json:"valor_irff"`
+	ValorFaturado float64 `json:"valor_faturado"`
+	AliquotaDAS   float64 `json:"aliquota_das"`
+	ValorDAS      float64 `json:"valor_das"`
+	AliquotaINSS  float64 `json:"aliquota_inss"`
+	ValorINSS     float64 `json:"valor_inss"`
+	AliquotaIRRF  float64 `json:"aliquota_irrf"`
+	ValorIRRF     float64 `json:"valor_irff"`
 }
 
 func initTipo() map[string]string {
@@ -44,9 +44,7 @@ func (f *Fechamento) InserirFechamento() error {
 		return err
 	}
 
-	pesq := Fechamento{}
-
-	config.MI.DB.Where("referencia = ? and tipo = ?", f.Referencia, f.Tipo).First(&pesq)
+	pesq, _ := ObterFechamentoPorMesETipo(f.Referencia, f.Tipo)
 
 	if pesq.Referencia != "" {
 		return ErrReferenciaFechamentoJaCadastrado
@@ -153,4 +151,11 @@ func ApagarFechamento(id uuid.UUID) error {
 	err := config.MI.DB.Where("id = ?", id.String()).Delete(&Fechamento{})
 
 	return err.Error
+}
+
+func ObterFechamentoPorMesETipo(referencia, tipo string) (Fechamento, error) {
+	pesq := Fechamento{}
+
+	retGr := config.MI.DB.Where("referencia = ? and tipo = ?", referencia, tipo).First(&pesq)
+	return pesq, retGr.Error
 }

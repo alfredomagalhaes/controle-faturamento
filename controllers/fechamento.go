@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/alfredomagalhaes/controle-faturamento/models"
 	"github.com/gofiber/fiber/v2"
@@ -190,16 +191,98 @@ func CalcularFechamento(c *fiber.Ctx) error {
 		})
 	}
 	//Busca a tabela de faixas de valores do simples nacional
-	tabelaSN, _ := models.ObterTabelaVigente(referencia)
+	tabelaSN, _ := models.ObterTabelaSNVigente(referencia)
 	//Busca a tabela de faixas de valores do imposto de renda
+	tabelaIR, _ := models.ObterTabelaIRVigente(referencia)
 	//Busca a tabela de faixas de valores do INSS
+	tabelaINSS, _ := models.ObterTabelaINSSVigente(referencia)
+	//Busca o faturamento do mês
+	fatMes, _ := models.ObterFaturamentoMes(referencia)
 
-	fmt.Println(totalFat)
-	fmt.Println(qtdFat)
-	fmt.Println(tabelaSN)
+	//Se possuir menos que 12 meses de faturamento
+	//o total faturado será a média dos meses * 12
+	if qtdFat < 12 {
+		totalFat = (totalFat / qtdFat) * 12
+	}
+	//verfica qual a faixa de valor que o faturamento se encontra
+	idxSN := -1
+	for i, fx := range tabelaSN.Faixas {
+		if totalFat >= fx.ValorInicial && totalFat <= fx.ValorFinal {
+			idxSN = i
+			break
+		}
+	}
+	if idxSN < 0 {
+		return c.Status(fiber.StatusOK).JSON(fiber.Map{
+			"success": true,
+			"message": "",
+		})
+	}
+	aliqSN := (((totalFat * tabelaSN.Faixas[idxSN].Aliquota) - tabelaSN.Faixas[idxSN].ParcelaDeducao) / totalFat)
+	targetProLabore := fatMes.ValorFaturado * (tabelaSN.PercentualFolha / 100)
 
+	//verifica a faixa de valor do INSS
+	idxINSS := -1
+	for i, fx := range tabelaINSS.Faixas {
+		if targetProLabore >= fx.ValorInicial && targetProLabore <= fx.ValorFinal {
+			idxINSS = i
+			break
+		}
+	}
+	valorInss := 0.00
+	if idxINSS == -1 {
+		valorInss = tabelaINSS.ValorLimite
+	} else {
+		valorInss = (targetProLabore * (tabelaINSS.Faixas[idxINSS].Aliquota / 100))
+		if valorInss > tabelaINSS.ValorLimite {
+			valorInss = tabelaINSS.ValorLimite
+		}
+	}
+
+	//Verifica a faixa de valores do imposto de renda
+	idxIRRF := -1
+	for i, fx := range tabelaIR.Faixas {
+		if targetProLabore >= fx.ValorInicial && targetProLabore <= fx.ValorFinal {
+			idxIRRF = i
+			break
+		}
+	}
+	//calcula o valor do IR a ser pago
+	valorIR := ((targetProLabore * (tabelaIR.Faixas[idxIRRF].Aliquota / 100)) - tabelaIR.Faixas[idxIRRF].ParcelaDeducao)
+	valorIR -= (2 * tabelaIR.DeducaoDependente) //TODO - adicionar tabela de depenentes do IR
+	if valorIR < 0 {
+		valorIR = 0
+	}
+	//Calcula o valor da DAS
+	valorDAS := fatMes.ValorFaturado * (aliqSN / 100)
+
+	fechaMes := models.Fechamento{}
+	fechaMes.Referencia = referencia
+	fechaMes.ValorDAS, _ = strconv.ParseFloat(fmt.Sprintf("%.2f", valorDAS), 64)
+	fechaMes.AliquotaDAS = aliqSN
+	fechaMes.ValorINSS, _ = strconv.ParseFloat(fmt.Sprintf("%.2f", valorInss), 64)
+	fechaMes.AliquotaINSS = tabelaINSS.Faixas[idxINSS].Aliquota
+	fechaMes.ValorIRRF, _ = strconv.ParseFloat(fmt.Sprintf("%.2f", valorIR), 64)
+	fechaMes.AliquotaIRRF = tabelaIR.Faixas[idxIRRF].Aliquota
+	fechaMes.Tipo = "P"
+
+	buscaF, _ := models.ObterFechamentoPorMesETipo(fechaMes.Referencia, fechaMes.Tipo)
+	if buscaF.Referencia != "" {
+		fechaMes.ID = buscaF.ID
+		err = fechaMes.AtualizarFechamento()
+	} else {
+
+		err = fechaMes.InserirFechamento()
+	}
+	if err != nil {
+		return c.Status(fiber.StatusPreconditionFailed).JSON(fiber.Map{
+			"success": false,
+			"message": err.Error(),
+		})
+	}
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"success": true,
 		"message": "",
+		"data":    fechaMes,
 	})
 }

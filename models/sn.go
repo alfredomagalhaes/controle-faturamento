@@ -21,10 +21,10 @@ type SN_Tabela struct {
 type SN_Faixa struct {
 	Base
 	Sequencia      int       `json:"sequencia"`
-	ValorInicial   float32   `json:"valor_inicial"`
-	ValorFinal     float32   `json:"valor_final"`
-	Aliquota       float32   `json:"aliquota"`
-	ParcelaDeducao float32   `json:"parcela_deducao"`
+	ValorInicial   float64   `json:"valor_inicial" gorm:"type:decimal(10,2)"`
+	ValorFinal     float64   `json:"valor_final" gorm:"type:decimal(10,2)"`
+	Aliquota       float64   `json:"aliquota" gorm:"type:decimal(10,2)"`
+	ParcelaDeducao float64   `json:"parcela_deducao" gorm:"type:decimal(10,2)"`
 	IDTabelaSN     uuid.UUID `json:"ID_tabela_SN"`
 }
 
@@ -107,7 +107,7 @@ func ApagarFaixasSN(id uuid.UUID) error {
 	return err.Error
 }
 
-func ObterTabelaVigente(r string) (SN_Tabela, error) {
+func ObterTabelaSNVigente(r string) (SN_Tabela, error) {
 	var ret SN_Tabela
 	var faixas []SN_Faixa
 	var referencia string
@@ -123,7 +123,7 @@ func ObterTabelaVigente(r string) (SN_Tabela, error) {
 		return SN_Tabela{}, x.Error
 	}
 	//Busca as faixas de valores referente
-	x = config.MI.DB.Model(&SN_Faixa{}).Where("id_tabela_sn = ? ", ret.ID.String()).Scan(faixas)
+	x = config.MI.DB.Model(&SN_Faixa{}).Where("id_tabela_sn = ? ", ret.ID.String()).Scan(&faixas)
 	if x.Error != nil {
 		return SN_Tabela{}, x.Error
 	}
