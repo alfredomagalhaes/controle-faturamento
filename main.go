@@ -75,5 +75,6 @@ func setupRoutes(app *fiber.App) {
 	routes.SNRoute(api.Group("/tabelaSN"))
 	routes.IRRoute(api.Group("/tabelaIR"))
 	routes.INSSRoute(api.Group("/tabelaINSS"))
+	routes.FaturamentoRoute(api.Group("/faturamento"))
 
 }
