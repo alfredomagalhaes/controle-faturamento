@@ -19,6 +19,7 @@ func InicializarTabelas() {
 	config.MI.DB.AutoMigrate(&IRRF_Faixa{})
 	config.MI.DB.AutoMigrate(&IRRF_Tabela{})
 	config.MI.DB.AutoMigrate(&Faturamento{})
+	config.MI.DB.AutoMigrate(&Fechamento{})
 
 	log.Println("Finalizando criação das tabelas no banco de dados")
 
