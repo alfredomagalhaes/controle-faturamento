@@ -12,5 +12,6 @@ func FechamentoRoute(route fiber.Router) {
 	route.Get("/:id", controllers.ObterFechamento)
 	route.Put("/:id", controllers.AtualizarFechamento)
 	route.Delete("/:id", controllers.ApagarFechamento)
+	route.Post("/calcular/:anoMes", controllers.CalcularFechamento)
 
 }

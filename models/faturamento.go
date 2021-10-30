@@ -2,6 +2,7 @@ package models
 
 import (
 	"errors"
+	"time"
 
 	"github.com/alfredomagalhaes/controle-faturamento/config"
 	uuid "github.com/satori/go.uuid"
@@ -14,6 +15,8 @@ type Faturamento struct {
 }
 
 var ErrReferenciaJaCadastrada = errors.New("referencia já existe no banco de dados")
+var formatoData string = "20060102"
+var formatoDataDB string = "2006-01-02"
 
 func (f *Faturamento) InserirFaturamento() error {
 
@@ -77,4 +80,34 @@ func ApagarFaturamento(id uuid.UUID) error {
 	err := config.MI.DB.Where("id = ?", id.String()).Delete(&Faturamento{})
 
 	return err.Error
+}
+
+//Função para somar os faturamentos anteriores
+//com base nos parâmetros de referencia (r) e delta (d) de meses anteriores
+func SomarFaturamentosAnteriores(r string, d int) (float32, float32, error) {
+	var somaFat float32
+	var quantFat float32
+	var anoMesInicial string
+	var anoMesFinal string
+
+	diaFormat, err := time.Parse(formatoData, r+"01")
+	if err != nil {
+		return 0, 0, err
+	}
+	diaFormat = diaFormat.AddDate(0, -d, 0)
+	anoMesInicial = diaFormat.Format(formatoData)[:6]
+	anoMesFinal = r
+
+	rows, err := config.MI.DB.Model(&Faturamento{}).Select("sum(valor_faturado) as total, count(valor_faturado) as qtd").Where("referencia between ? and ?", anoMesInicial, anoMesFinal).Rows()
+	if err != nil {
+		return 0, 0, err
+	}
+	for rows.Next() {
+		err := rows.Scan(&somaFat, &quantFat)
+		if err != nil {
+			return 0, 0, err
+		}
+	}
+
+	return somaFat, quantFat, nil
 }

@@ -1,6 +1,8 @@
 package controllers
 
 import (
+	"fmt"
+
 	"github.com/alfredomagalhaes/controle-faturamento/models"
 	"github.com/gofiber/fiber/v2"
 	uuid "github.com/satori/go.uuid"
@@ -163,6 +165,38 @@ func ApagarFechamento(c *fiber.Ctx) error {
 			"error":   err,
 		})
 	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"success": true,
+		"message": "",
+	})
+}
+
+func CalcularFechamento(c *fiber.Ctx) error {
+
+	referencia := c.Params("anoMes")
+	if referencia == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"success": false,
+			"message": "parametro anoMes não informado",
+		})
+	}
+	totalFat, qtdFat, err := models.SomarFaturamentosAnteriores(referencia, 12)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"success": false,
+			"message": "malformed request",
+			"error":   err,
+		})
+	}
+	//Busca a tabela de faixas de valores do simples nacional
+	tabelaSN, _ := models.ObterTabelaVigente(referencia)
+	//Busca a tabela de faixas de valores do imposto de renda
+	//Busca a tabela de faixas de valores do INSS
+
+	fmt.Println(totalFat)
+	fmt.Println(qtdFat)
+	fmt.Println(tabelaSN)
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"success": true,

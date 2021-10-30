@@ -106,3 +106,28 @@ func ApagarFaixasSN(id uuid.UUID) error {
 
 	return err.Error
 }
+
+func ObterTabelaVigente(r string) (SN_Tabela, error) {
+	var ret SN_Tabela
+	var faixas []SN_Faixa
+	var referencia string
+
+	diaFormat, err := time.Parse(formatoData, r+"01")
+	if err != nil {
+		return ret, err
+	}
+	referencia = diaFormat.Format(formatoDataDB)
+
+	x := config.MI.DB.Where(" ? between data_inicial and data_final ", referencia).Find(&ret)
+	if x.Error != nil {
+		return SN_Tabela{}, x.Error
+	}
+	//Busca as faixas de valores referente
+	x = config.MI.DB.Model(&SN_Faixa{}).Where("id_tabela_sn = ? ", ret.ID.String()).Scan(faixas)
+	if x.Error != nil {
+		return SN_Tabela{}, x.Error
+	}
+
+	ret.Faixas = faixas
+	return ret, nil
+}
