@@ -21,21 +21,43 @@ import {
   Switch,
 } from "antd";
 
+import { Link, withRouter } from "react-router-dom";
+import api from "../../services/api";
+import { login } from "../../services/auth";
+
 function onChange(checked) {
   console.log(`switch to ${checked}`);
 }
 const { Title } = Typography;
 const { Header, Content } = Layout;
 
-export default class SignIn extends Component {
-  render() {
-    const onFinish = (values) => {
-      console.log("Success:", values);
-    };
+class SignIn extends Component {
 
-    const onFinishFailed = (errorInfo) => {
-      console.log("Failed:", errorInfo);
-    };
+  state = {
+    email: "",
+    password: "",
+    error: ""
+  };
+
+  handleSignIn = async e => {
+    //e.preventDefault();
+    const { email, password } = this.state;
+    if (!email || !password) {
+      this.setState({ error: "Preencha e-mail e senha para continuar!" });
+    } else {
+      try {
+        const response = await api.post("/login", { email, password });
+        login(response.data.token);
+        this.props.history.push("/home");
+      } catch (err) {
+        this.setState({
+          error:
+            "Houve um problema com o login, verifique suas credenciais. T.T"
+        });
+      }
+    }
+  };
+  render() {
     return (
       <>
         <Layout className="layout-default layout-signin">
@@ -57,8 +79,7 @@ export default class SignIn extends Component {
                   Enter your email and password to sign in
                 </Title>
                 <Form
-                  onFinish={onFinish}
-                  onFinishFailed={onFinishFailed}
+                  onFinish={this.handleSignIn}
                   layout="vertical"
                   className="row-col"
                 >
@@ -66,6 +87,7 @@ export default class SignIn extends Component {
                     className="username"
                     label="Email"
                     name="email"
+                    onChange={e => this.setState({ email: e.target.value })}
                     rules={[
                       {
                         required: true,
@@ -80,6 +102,7 @@ export default class SignIn extends Component {
                     className="username"
                     label="Password"
                     name="password"
+                    onChange={e => this.setState({ password: e.target.value })}
                     rules={[
                       {
                         required: true,
@@ -87,7 +110,7 @@ export default class SignIn extends Component {
                       },
                     ]}
                   >
-                    <Input placeholder="Password" />
+                    <Input placeholder="Password" type="password" />
                   </Form.Item>
 
                   <Form.Item
@@ -119,3 +142,5 @@ export default class SignIn extends Component {
     );
   }
 }
+
+export default withRouter(SignIn);

@@ -27,8 +27,8 @@ const Routes = () => (
       <Route exact path="/" component={SignIn} />
       <PrivateRoute path="/app" component={() => <h1>App</h1>} />
       <Main>
-        <Route exact path="/home" component={HomePage} />
-        <Route exact path="/tabelaSN" component={SimplesN} />
+        <PrivateRoute exact path="/home" component={HomePage} />
+        <PrivateRoute exact path="/tabelaSN" component={SimplesN} />
       </Main>
       <Route path="*" component={() => <h1>Page not found</h1>} />
     </Switch>
