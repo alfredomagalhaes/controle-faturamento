@@ -9,37 +9,66 @@
   =========================================================
   * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 */
-import { useState } from "react";
+import React, { useState } from "react";
 
 import {
   Card,
   Col,
   Row,
   Typography,
-  Upload,
-  message,
-  Button,
-  Timeline,
-  Radio,
+  
 } from "antd";
-import {
-  ToTopOutlined,
-  MenuUnfoldOutlined,
-  RightOutlined,
-} from "@ant-design/icons";
-import Paragraph from "antd/lib/typography/Paragraph";
+
 
 import Echart from "../../components/chart/EChart";
 import LineChart from "../../components/chart/LineChart";
-
+import api from "../../services/api";
 
 function Home() {
-  const { Title, Text } = Typography;
+  const [faturamentoTotal,setFaturamentoTotal] = useState(0.00)
+  const [impostoTotal,setImpostoTotal] = useState(0.00)
+  
+  async function getFaturamentoAcumulado(){
+    var anoMesPesq = montaAnoMes();
+    await api.get("/faturamento/historico/acumulado?referencia="+anoMesPesq+"&deltaMeses=12")
+      .then(response => setFaturamentoTotal(response.data.data.total))        
+    return faturamentoTotal
+    
+  };
 
-  const onChange = (e) => console.log(`radio checked:${e.target.value}`);
+  async function getImpostoAcumulado(){
+    var anoMesPesq = montaAnoMes();
+    await api.get("/fechamento/impostos/acumulados?referencia="+anoMesPesq+"&deltaMeses=12")
+      .then(response => setImpostoTotal(response.data.data.total))        
+    return impostoTotal
+  };
 
-  const [reverse, setReverse] = useState(false);
+  function montaTotalizadores() {
+    const totalizadores = [
+      {
+        title: "Faturamento últimos 12 meses",
+        text: faturamentoTotal,
+      },
+      {
+        title: "Impostos últimos 12 meses",
+        text: impostoTotal,}
+    ];
+    return totalizadores
+  }
 
+  function montaAnoMes() {
+    var date = new Date();
+    var firstDay = new Date(date.getFullYear(), date.getMonth()-1, 1);
+    var mes = firstDay.getMonth() >= 10 ? '' : '0' + firstDay.getMonth().toString()
+    var anoMes = firstDay.getFullYear().toString() + mes
+    
+    return anoMes
+  }
+  
+  const fatuAcu = getFaturamentoAcumulado()
+  const impostoAcu = getImpostoAcumulado()
+  const totalizadores = montaTotalizadores() 
+ 
   const dollor = [
     <svg
       width="22"
@@ -65,124 +94,14 @@ function Home() {
       ></path>
     </svg>,
   ];
-  const heart = [
-    <svg
-      width="22"
-      height="22"
-      viewBox="0 0 20 20"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      key={0}
-    >
-      <path
-        fillRule="evenodd"
-        clipRule="evenodd"
-        d="M3.17157 5.17157C4.73367 3.60948 7.26633 3.60948 8.82843 5.17157L10 6.34315L11.1716 5.17157C12.7337 3.60948 15.2663 3.60948 16.8284 5.17157C18.3905 6.73367 18.3905 9.26633 16.8284 10.8284L10 17.6569L3.17157 10.8284C1.60948 9.26633 1.60948 6.73367 3.17157 5.17157Z"
-        fill="#fff"
-      ></path>
-    </svg>,
-  ];
-  const cart = [
-    <svg
-      width="22"
-      height="22"
-      viewBox="0 0 20 20"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      key={0}
-    >
-      <path
-        fillRule="evenodd"
-        clipRule="evenodd"
-        d="M10 2C7.79086 2 6 3.79086 6 6V7H5C4.49046 7 4.06239 7.38314 4.00612 7.88957L3.00612 16.8896C2.97471 17.1723 3.06518 17.455 3.25488 17.6669C3.44458 17.8789 3.71556 18 4 18H16C16.2844 18 16.5554 17.8789 16.7451 17.6669C16.9348 17.455 17.0253 17.1723 16.9939 16.8896L15.9939 7.88957C15.9376 7.38314 15.5096 7 15 7H14V6C14 3.79086 12.2091 2 10 2ZM12 7V6C12 4.89543 11.1046 4 10 4C8.89543 4 8 4.89543 8 6V7H12ZM6 10C6 9.44772 6.44772 9 7 9C7.55228 9 8 9.44772 8 10C8 10.5523 7.55228 11 7 11C6.44772 11 6 10.5523 6 10ZM13 9C12.4477 9 12 9.44772 12 10C12 10.5523 12.4477 11 13 11C13.5523 11 14 10.5523 14 10C14 9.44772 13.5523 9 13 9Z"
-        fill="#fff"
-      ></path>
-    </svg>,
-  ];
-  const count = [
-    {
-      today: "Faturamento últimos 12 meses",
-      title: "R$ 53,000",
-      icon: dollor,
-      bnb: "bnb2",
-    },
-    {
-      today: "Impostos acumulados 12 meses",
-      title: "R$ - 3,200",
-      icon: dollor,
-      bnb: "redtext",
-      todaybnb:"redtext",
-    },
-    {
-      today: "New Clients",
-      title: "+1,200",
-      persent: "-20%",
-      icon: heart,
-      bnb: "redtext",
-    },
-    {
-      today: "New Orders",
-      title: "$13,200",
-      persent: "10%",
-      icon: cart,
-      bnb: "bnb2",
-    },
-  ];
-
-
-  const timelineList = [
-    {
-      title: "$2,400 - Redesign store",
-      time: "09 JUN 7:20 PM",
-      color: "green",
-    },
-    {
-      title: "New order #3654323",
-      time: "08 JUN 12:20 PM",
-      color: "green",
-    },
-    {
-      title: "Company server payments",
-      time: "04 JUN 3:10 PM",
-    },
-    {
-      title: "New card added for order #4826321",
-      time: "02 JUN 2:45 PM",
-    },
-    {
-      title: "Unlock folders for development",
-      time: "18 MAY 1:30 PM",
-    },
-    {
-      title: "New order #46282344",
-      time: "14 MAY 3:30 PM",
-      color: "gray",
-    },
-  ];
-
-  const uploadProps = {
-    name: "file",
-    action: "https://www.mocky.io/v2/5cc8019d300000980a055e76",
-    headers: {
-      authorization: "authorization-text",
-    },
-    onChange(info) {
-      if (info.file.status !== "uploading") {
-        console.log(info.file, info.fileList);
-      }
-      if (info.file.status === "done") {
-        message.success(`${info.file.name} file uploaded successfully`);
-      } else if (info.file.status === "error") {
-        message.error(`${info.file.name} file upload failed.`);
-      }
-    },
-  };
+ 
+  const { Title } = Typography;
 
   return (
     <>
       <div className="layout-content">
         <Row className="rowgap-vbox" gutter={[24, 0]}>
-          {count.map((c, index) => (
+          {totalizadores.map((c, index) => (
             <Col
               key={index}
               xs={24}
@@ -196,13 +115,16 @@ function Home() {
                 <div className="number">
                   <Row align="middle" gutter={[24, 0]}>
                     <Col xs={18}>
-                      <span className={c.todaybnb} >{c.today}</span>
+                      <span className={c.todaybnb} >{c.title}</span>
                       <Title level={3}>
-                        {c.title} <small className={c.bnb}>{c.persent}</small>
+                        {new Intl.NumberFormat('pt-BR',{
+                          style: 'currency',
+                          currency: "BRL"
+                        }).format(c.text)}
                       </Title>
                     </Col>
                     <Col xs={6}>
-                      <div className="icon-box">{c.icon}</div>
+                      <div className="icon-box">{dollor}</div>
                     </Col>
                   </Row>
                 </div>
@@ -220,141 +142,6 @@ function Home() {
           <Col xs={24} sm={24} md={12} lg={12} xl={14} className="mb-24">
             <Card bordered={false} className="criclebox h-full">
               <LineChart />
-            </Card>
-          </Col>
-        </Row>
-
-        <Row gutter={[24, 0]}>
-          <Col xs={24} sm={24} md={12} lg={12} xl={16} className="mb-24">
-            <Card bordered={false} className="criclebox cardbody h-full">
-              <div className="project-ant">
-                <div>
-                  <Title level={5}>Projects</Title>
-                  <Paragraph className="lastweek">
-                    done this month<span className="blue">40%</span>
-                  </Paragraph>
-                </div>
-                <div className="ant-filtertabs">
-                  <div className="antd-pro-pages-dashboard-analysis-style-salesExtra">
-                    <Radio.Group onChange={onChange} defaultValue="a">
-                      <Radio.Button value="a">ALL</Radio.Button>
-                      <Radio.Button value="b">ONLINE</Radio.Button>
-                      <Radio.Button value="c">STORES</Radio.Button>
-                    </Radio.Group>
-                  </div>
-                </div>
-              </div>
-              <div className="ant-list-box table-responsive">
-                <table className="width-100">
-                  <thead>
-                    <tr>
-                      <th>COMPANIES</th>
-                      <th>MEMBERS</th>
-                      <th>BUDGET</th>
-                      <th>COMPLETION</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    
-                  </tbody>
-                </table>
-              </div>
-              <div className="uploadfile shadow-none">
-                <Upload {...uploadProps}>
-                  <Button
-                    type="dashed"
-                    className="ant-full-box"
-                    icon={<ToTopOutlined />}
-                  >
-                    <span className="click">Click to Upload</span>
-                  </Button>
-                </Upload>
-              </div>
-            </Card>
-          </Col>
-          <Col xs={24} sm={24} md={12} lg={12} xl={8} className="mb-24">
-            <Card bordered={false} className="criclebox h-full">
-              <div className="timeline-box">
-                <Title level={5}>Orders History</Title>
-                <Paragraph className="lastweek" style={{ marginBottom: 24 }}>
-                  this month <span className="bnb2">20%</span>
-                </Paragraph>
-
-                <Timeline
-                  pending="Recording..."
-                  className="timelinelist"
-                  reverse={reverse}
-                >
-                  {timelineList.map((t, index) => (
-                    <Timeline.Item color={t.color} key={index}>
-                      <Title level={5}>{t.title}</Title>
-                      <Text>{t.time}</Text>
-                    </Timeline.Item>
-                  ))}
-                </Timeline>
-                <Button
-                  type="primary"
-                  className="width-100"
-                  onClick={() => setReverse(!reverse)}
-                >
-                  {<MenuUnfoldOutlined />} REVERSE
-                </Button>
-              </div>
-            </Card>
-          </Col>
-        </Row>
-
-        <Row gutter={[24, 0]}>
-          <Col xs={24} md={12} sm={24} lg={12} xl={14} className="mb-24">
-            <Card bordered={false} className="criclebox h-full">
-              <Row gutter>
-                <Col
-                  xs={24}
-                  md={12}
-                  sm={24}
-                  lg={12}
-                  xl={14}
-                  className="mobile-24"
-                >
-                  <div className="h-full col-content p-20">
-                    <div className="ant-muse">
-                      <Text>Built by developers</Text>
-                      <Title level={5}>Muse Dashboard for Ant Design</Title>
-                      <Paragraph className="lastweek mb-36">
-                        From colors, cards, typography to complex elements, you
-                        will find the full documentation.
-                      </Paragraph>
-                    </div>
-                    <div className="card-footer">
-                      <a className="icon-move-right" href="#pablo">
-                        Read More
-                        {<RightOutlined />}
-                      </a>
-                    </div>
-                  </div>
-                </Col>
-
-              </Row>
-            </Card>
-          </Col>
-
-          <Col xs={24} md={12} sm={24} lg={12} xl={10} className="mb-24">
-            <Card bordered={false} className="criclebox card-info-2 h-full">
-              <div className="gradent h-full col-content">
-                <div className="card-content">
-                  <Title level={5}>Work with the best</Title>
-                  <p>
-                    Wealth creation is an evolutionarily recent positive-sum
-                    game. It is all about who take the opportunity first.
-                  </p>
-                </div>
-                <div className="card-footer">
-                  <a className="icon-move-right" href="#pablo">
-                    Read More
-                    <RightOutlined />
-                  </a>
-                </div>
-              </div>
             </Card>
           </Col>
         </Row>
