@@ -12,5 +12,6 @@ func FaturamentoRoute(route fiber.Router) {
 	route.Get("/:id", controllers.ObterFaturamento)
 	route.Put("/:id", controllers.AtualizarFaturamento)
 	route.Delete("/:id", controllers.ApagarFaturamento)
+	route.Get("/historico/acumulado", controllers.ObterHistoricoAcumuladoFaturamento)
 
 }
