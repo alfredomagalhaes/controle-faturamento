@@ -3,6 +3,7 @@ package models
 import (
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/alfredomagalhaes/controle-faturamento/config"
 	uuid "github.com/satori/go.uuid"
@@ -158,4 +159,31 @@ func ObterFechamentoPorMesETipo(referencia, tipo string) (Fechamento, error) {
 
 	retGr := config.MI.DB.Where("referencia = ? and tipo = ?", referencia, tipo).First(&pesq)
 	return pesq, retGr.Error
+}
+
+func SomarImpostosPagos(r string, d int) (float64, error) {
+	var somaImpostos float64
+	var anoMesInicial string
+	var anoMesFinal string
+
+	diaFormat, err := time.Parse(formatoData, r+"01")
+	if err != nil {
+		return 0, err
+	}
+	diaFormat = diaFormat.AddDate(0, -d, 0)
+	anoMesInicial = diaFormat.Format(formatoData)[:6]
+	anoMesFinal = r
+
+	rows, err := config.MI.DB.Model(&Fechamento{}).Select("sum(valor_das)+sum(valor_inss)+sum(valor_irrf) as total").Where("referencia between ? and ? and tipo = 'F'", anoMesInicial, anoMesFinal).Rows()
+	if err != nil {
+		return 0, err
+	}
+	for rows.Next() {
+		err := rows.Scan(&somaImpostos)
+		if err != nil {
+			return 0, err
+		}
+	}
+
+	return somaImpostos, nil
 }

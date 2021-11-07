@@ -7,11 +7,15 @@ import (
 
 func FechamentoRoute(route fiber.Router) {
 
-	route.Post("", controllers.InserirFechamento)
 	route.Get("/", controllers.ObterTodosFechamentos)
 	route.Get("/:id", controllers.ObterFechamento)
+	route.Get("/impostos/acumulados", controllers.ObterHistoricoAcumuladoImpostosPagos)
+
 	route.Put("/:id", controllers.AtualizarFechamento)
-	route.Delete("/:id", controllers.ApagarFechamento)
+
+	route.Post("", controllers.InserirFechamento)
 	route.Post("/calcular/:anoMes", controllers.CalcularFechamento)
+
+	route.Delete("/:id", controllers.ApagarFechamento)
 
 }

@@ -286,3 +286,45 @@ func CalcularFechamento(c *fiber.Ctx) error {
 		"data":    fechaMes,
 	})
 }
+
+func ObterHistoricoAcumuladoImpostosPagos(c *fiber.Ctx) error {
+
+	referencia := c.Query("referencia", "")
+	if referencia == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"success": false,
+			"message": "malformed request",
+		})
+	}
+	deltaMeses, err := strconv.Atoi(c.Query("deltaMeses", "1"))
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"success": false,
+			"message": "parametro deltaMeses deve receber apenas numeros",
+		})
+	}
+
+	totalImpostos, err := models.SomarImpostosPagos(referencia, deltaMeses)
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+				"success": false,
+				"message": "nenhum registro localizado",
+			})
+		}
+
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"success": false,
+			"message": err.Error(),
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"success": true,
+		"message": "",
+		"data": fiber.Map{
+			"total": totalImpostos,
+		},
+	})
+
+}
