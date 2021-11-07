@@ -8,6 +8,7 @@ import (
 	"github.com/alfredomagalhaes/controle-faturamento/models"
 	"github.com/alfredomagalhaes/controle-faturamento/routes"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	jwtware "github.com/gofiber/jwt/v3"
 	"github.com/joho/godotenv"
@@ -16,6 +17,9 @@ import (
 func main() {
 	app := fiber.New()
 	app.Use(logger.New())
+	app.Use(cors.New(cors.Config{
+		AllowOrigins: "*",
+	}))
 
 	// dotenv
 	err := godotenv.Load()
