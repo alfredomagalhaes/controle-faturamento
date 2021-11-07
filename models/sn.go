@@ -2,6 +2,7 @@ package models
 
 import (
 	"errors"
+	"sort"
 	"time"
 
 	"github.com/alfredomagalhaes/controle-faturamento/config"
@@ -130,4 +131,19 @@ func ObterTabelaSNVigente(r string) (SN_Tabela, error) {
 
 	ret.Faixas = faixas
 	return ret, nil
+}
+
+func ObterTodasTabelasSN() ([]SN_Tabela, error) {
+
+	ret := []SN_Tabela{}
+
+	x := config.MI.DB.Find(&ret)
+
+	if x.Error == nil {
+		sort.Slice(ret, func(i, j int) bool {
+			return ret[i].DataInicial.Before(ret[j].DataInicial)
+		})
+	}
+
+	return ret, x.Error
 }
