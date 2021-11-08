@@ -99,7 +99,7 @@ function Sidenav({ color }) {
           </NavLink>
         </Menu.Item>
         <Menu.Item key="3">
-          <NavLink to="/faturamento">
+          <NavLink to="/faturamentos">
             <span
               className="icon"
               style={{
