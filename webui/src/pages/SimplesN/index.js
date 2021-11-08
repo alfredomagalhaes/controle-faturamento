@@ -13,19 +13,16 @@ import {
   Row,
   Col,
   Card,
-  
   Table,
-  
-  message,
-  
   Button,
-  Avatar,
   Typography,
 } from "antd";
+import { useEffect } from "react";
+import { useState } from "react/cjs/react.development";
+import api from "../../services/api";
 
 
 // Images
-
 
 const { Title } = Typography;
 
@@ -47,6 +44,11 @@ const columns = [
     title: "% Custo de Folha",
     key: "custofolha",
     dataIndex: "custofolha",
+  },
+  {
+    title: "Ação",
+    key: "action",
+    dataIndex: "action",
   },
   
 ];
@@ -72,7 +74,13 @@ const data = [
     custofolha: (
       <>
         <div className="author-info">
-          <p>29%</p>
+        <Title level={5}>29%</Title>
+        </div>
+      </>
+    ),
+    action: (
+      <>
+        <div className="author-info">
           <span>
             <Button >Editar </Button>
           </span>
@@ -86,6 +94,76 @@ const data = [
 
 function SimplesN() {
   
+  const [tabelasAPI, setTabelasAPI] = useState([]);
+  const [dadosTabela , setDadosTabela] = useState([]);
+
+  async function initTabelasSiplesNacional(){
+    var dados = {};
+
+    await api.get("/tabelaSN")
+      .then(response => setTabelasAPI(state => state = response.data.data));
+    
+    //setDadosTabela([]);
+
+    tabelasAPI.map((tabela,idx) => {
+        console.log([tabela,idx])
+        dados = {
+          key: tabela.id,
+          vigini: (
+            <>
+              <div className="avatar-info">
+                <Title level={5}>
+                  {new Intl.DateTimeFormat('pt-BR').format(
+                    new Date(tabela.data_inicial)
+                  ) }
+                </Title>
+              </div>
+            </>
+          ),
+          vigfim: (
+            <>
+              <div className="author-info">
+                <Title level={5}>
+                  {new Intl.DateTimeFormat('pt-BR').format(
+                    new Date(tabela.data_final)
+                  ) }
+                </Title>
+              </div>
+            </>
+          ),
+      
+          custofolha: (
+            <>
+              <div className="author-info">
+              <Title level={5}>{tabela.target_folha} %</Title>
+              </div>
+            </>
+          ),
+          action: (
+            <>
+              <div className="author-info">
+                <span>
+                  <Button >Editar</Button>
+                </span>
+              </div>
+            </>
+          ),
+        }
+  
+        setDadosTabela(arr => [...arr,dados])
+      });
+    console.log(dadosTabela);
+  }
+
+  useEffect( ()=> {
+    
+    initTabelasSiplesNacional()
+
+    
+    //tabelasAPI.map()
+
+  },[]);
+
   return (
     <>
       <div className="tabled">
@@ -100,7 +178,7 @@ function SimplesN() {
               <div className="table-responsive">
                 <Table
                   columns={columns}
-                  dataSource={data}
+                  dataSource={dadosTabela}
                   pagination={false}
                   className="ant-border-space"
                 />
