@@ -9,7 +9,8 @@ import {
 import { useEffect, useMemo } from "react";
 import { useState } from "react/cjs/react.development";
 import api from "../../services/api";
-import * as moment from 'moment';
+import { ModalEdicaoFaturamento } from "../../components/ModalEdicaoFaturamento"
+import moment from 'moment';
   
   // Images
   const { Title } = Typography;
@@ -43,6 +44,30 @@ import * as moment from 'moment';
 
   function Faturamento() {
     const [tabelasAPI, setTabelasAPI] = useState([]);
+    const [isModalVisible, setIsModalVisible] = useState(false);
+    const [valorFaturado, setValorFaturado] = useState(0.00);
+    const [anoMesFaturamento, setAnoMesFaturamento] = useState("");
+
+    function handleOpenModal() {
+        setIsModalVisible(false);
+    };
+
+    function handleCloseModal(){
+        setIsModalVisible(false);
+    };
+
+    function showModal() {
+        setIsModalVisible(true);
+    };
+    function alteraValor(valor){
+        console.log(valor)
+        setValorFaturado(valor)
+    }
+
+    function alteraAnoMesFaturamento(date, dateString){
+        console.log(date, dateString)
+        //setValorFaturado(valor)
+    }
 
     useEffect(() => {
       api.get("/faturamento")
@@ -97,7 +122,7 @@ import * as moment from 'moment';
             <>
               <div className="author-info">
                 <span>
-                  <Button >Editar</Button>
+                  <Button onClick={showModal}>Editar</Button>
                 </span>
               </div>
             </>
@@ -110,6 +135,15 @@ import * as moment from 'moment';
 
     return (
       <>
+        <ModalEdicaoFaturamento 
+            isOpen ={isModalVisible} 
+            onOkFunc={handleOpenModal} 
+            onCancelFunc={handleCloseModal}
+            valorFat={valorFaturado}
+            onChangeValorFat={alteraValor}
+            onChangeAnoMes={alteraAnoMesFaturamento}
+        />
+        
         <div className="tabled">
           <Row gutter={[24, 0]}>
             <Col xs="24" xl={24}>

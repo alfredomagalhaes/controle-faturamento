@@ -7,6 +7,7 @@ import Main from "./components/layout/Main";
 import SignIn from "./pages/SignIn";
 import HomePage from "./pages/Home";
 import SimplesN from "./pages/SimplesN";
+import Faturamento from "./pages/Faturamento";
 
 const PrivateRoute = ({ component: Component, ...rest }) => (
   <Route
@@ -29,6 +30,7 @@ const Routes = () => (
       <Main>
         <PrivateRoute exact path="/home" component={HomePage} />
         <PrivateRoute exact path="/tabelaSN" component={SimplesN} />
+        <PrivateRoute exact path="/faturamentos" component={Faturamento} />
       </Main>
       <Route path="*" component={() => <h1>Page not found</h1>} />
     </Switch>
