@@ -2,6 +2,7 @@ package models
 
 import (
 	"errors"
+	"sort"
 	"time"
 
 	"github.com/alfredomagalhaes/controle-faturamento/config"
@@ -53,6 +54,11 @@ func ObterTodosFaturamentos() ([]Faturamento, error) {
 
 	x := config.MI.DB.Find(&ret)
 
+	if x.Error == nil {
+		sort.Slice(ret, func(i, j int) bool {
+			return ret[i].Referencia > ret[j].Referencia
+		})
+	}
 	return ret, x.Error
 }
 
