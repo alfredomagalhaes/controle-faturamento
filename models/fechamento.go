@@ -111,11 +111,11 @@ func ObterFechamento(id uuid.UUID) (Fechamento, error) {
 	return ret, x.Error
 }
 
-func ObterTodosFechamentos() ([]Fechamento, error) {
+func ObterTodosFechamentos(pg *Paginacao) ([]Fechamento, error) {
 
 	ret := []Fechamento{}
 
-	x := config.MI.DB.Find(&ret)
+	x := config.MI.DB.Scopes(Paginar(ret, pg, config.MI.DB)).Find(&ret)
 
 	return ret, x.Error
 }

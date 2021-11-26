@@ -81,7 +81,13 @@ func ObterFechamento(c *fiber.Ctx) error {
 
 func ObterTodosFechamentos(c *fiber.Ctx) error {
 
-	tb, err := models.ObterTodosFechamentos()
+	pg := ObterPaginacaoReqHttp(c)
+
+	if pg.Ordem == "" {
+		pg.Ordem = "referencia desc"
+	}
+
+	tb, err := models.ObterTodosFechamentos(&pg)
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{

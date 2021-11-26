@@ -133,11 +133,11 @@ func ObterTabelaSNVigente(r string) (SN_Tabela, error) {
 	return ret, nil
 }
 
-func ObterTodasTabelasSN() ([]SN_Tabela, error) {
+func ObterTodasTabelasSN(pg *Paginacao) ([]SN_Tabela, error) {
 
 	ret := []SN_Tabela{}
 
-	x := config.MI.DB.Find(&ret)
+	x := config.MI.DB.Scopes(Paginar(ret, pg, config.MI.DB)).Find(&ret)
 
 	if x.Error == nil {
 		sort.Slice(ret, func(i, j int) bool {

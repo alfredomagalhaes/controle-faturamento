@@ -80,7 +80,13 @@ func ObterFaturamento(c *fiber.Ctx) error {
 
 func ObterTodosFaturamentos(c *fiber.Ctx) error {
 
-	tb, err := models.ObterTodosFaturamentos()
+	pg := ObterPaginacaoReqHttp(c)
+
+	if pg.Ordem == "" {
+		pg.Ordem = "referencia desc"
+	}
+
+	tb, err := models.ObterTodosFaturamentos(&pg)
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
@@ -100,6 +106,7 @@ func ObterTodosFaturamentos(c *fiber.Ctx) error {
 		"success": true,
 		"message": "",
 		"data":    tb,
+		"meta":    pg,
 	})
 }
 

@@ -206,7 +206,13 @@ func ObterTabelaSNVigente(c *fiber.Ctx) error {
 
 func ObterTodasTabelasSN(c *fiber.Ctx) error {
 
-	tb, err := models.ObterTodasTabelasSN()
+	pg := ObterPaginacaoReqHttp(c)
+
+	if pg.Ordem == "" {
+		pg.Ordem = "referencia desc"
+	}
+
+	tb, err := models.ObterTodasTabelasSN(&pg)
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{

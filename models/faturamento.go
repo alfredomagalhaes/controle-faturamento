@@ -2,7 +2,6 @@ package models
 
 import (
 	"errors"
-	"sort"
 	"time"
 
 	"github.com/alfredomagalhaes/controle-faturamento/config"
@@ -48,17 +47,12 @@ func ObterFaturamento(id uuid.UUID) (Faturamento, error) {
 	return ret, x.Error
 }
 
-func ObterTodosFaturamentos() ([]Faturamento, error) {
+func ObterTodosFaturamentos(pg *Paginacao) ([]Faturamento, error) {
 
 	ret := []Faturamento{}
 
-	x := config.MI.DB.Find(&ret)
+	x := config.MI.DB.Scopes(Paginar(ret, pg, config.MI.DB)).Find(&ret)
 
-	if x.Error == nil {
-		sort.Slice(ret, func(i, j int) bool {
-			return ret[i].Referencia > ret[j].Referencia
-		})
-	}
 	return ret, x.Error
 }
 
@@ -66,6 +60,16 @@ func (f *Faturamento) AtualizarFaturamento() error {
 
 	//TODO - Inserir validações
 	if f.Referencia != "" {
+
+		pesq := Faturamento{}
+
+		config.MI.DB.Where("referencia = ?", f.Referencia).First(&pesq)
+
+		//if pesq.Referencia != "" && pesq.ID != f.ID {
+		if pesq.Referencia != "" {
+			return ErrReferenciaJaCadastrada
+		}
+
 		result := config.MI.DB.Model(&f).Update("referencia", &f.Referencia)
 
 		if result.Error != nil {
