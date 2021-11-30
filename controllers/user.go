@@ -8,8 +8,8 @@ import (
 
 	"github.com/alfredomagalhaes/controle-faturamento/config"
 	"github.com/alfredomagalhaes/controle-faturamento/models"
-	"github.com/dgrijalva/jwt-go"
 	"github.com/gofiber/fiber/v2"
+	"github.com/golang-jwt/jwt/v4"
 	"golang.org/x/crypto/bcrypt"
 )
 

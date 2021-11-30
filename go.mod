@@ -9,10 +9,10 @@ require (
 
 require (
 	github.com/andybalholm/brotli v1.0.3 // indirect
-	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/go-sql-driver/mysql v1.6.0 // indirect
 	github.com/gofiber/fiber/v2 v2.20.2
 	github.com/gofiber/jwt/v3 v3.2.0
+	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/golang-jwt/jwt/v4 v4.1.0
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.2 // indirect
