@@ -107,6 +107,7 @@ func ObterTodosFechamentos(c *fiber.Ctx) error {
 		"success": true,
 		"message": "",
 		"data":    tb,
+		"meta":    pg,
 	})
 }
 
